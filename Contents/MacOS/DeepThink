@@ -1,0 +1,37 @@
+#!/bin/bash
+cd /Users/biplovegautam/CodeEverything/work/deepseek
+
+
+# Activate the custom virtual environment
+source .venv/bin/activate
+
+# Install dependencies (if not already installed)
+if ! pip show ollama streamlit > /dev/null 2>&1; then
+  echo "Installing dependencies..."
+  pip install ollama streamlit
+else
+  echo "Dependencies already installed. Skipping installation."
+fi
+
+# Check if Ollama is running
+if ! curl -s http://localhost:11434 > /dev/null; then
+  echo "Ollama is not running. Starting Ollama..."
+  ollama serve &
+  sleep 5  # Wait for Ollama to start
+else
+  echo "Ollama is already running."
+fi
+
+# Check if deepseek-r1:1.5b is installed
+if ! ollama list | grep -q "deepseek-r1:1.5b"; then
+  echo "deepseek-r1:1.5b is not installed. Pulling the model..."
+  ollama pull deepseek-r1:1.5b
+else
+  echo "deepseek-r1:1.5b is already installed."
+fi
+
+# Run the Streamlit app
+streamlit run app.py
+
+# Deactivate the virtual environment
+deactivate
